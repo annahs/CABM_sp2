@@ -41,8 +41,9 @@ instr_location_ID 	= CABM_utilities.getLocationID(args.location)
 instr_ID 			= CABM_utilities.getInstrID(args.instr_number)
 UNIX_date			= calendar.timegm(args.date.utctimetuple())
 calib_ids 			= CABM_utilities.retrieveCalibrationIDs(instr_location_ID,instr_ID,UNIX_date,cursor)
+calib_date 			= CABM_utilities.retrieveCalibrationDate(calib_ids[0],cursor)
 fit_type 			= args.fit_type
-
+print 'calib_ids', calib_ids
 
 #do plotting
 fig = plt.figure()
@@ -87,10 +88,10 @@ for calibration_ID in calib_ids:
 
 
 ax.grid(True)
-plt.legend(loc=2)
+plt.legend(loc=4)
 plt.xlabel('Incandescent peak height (a.u.)')
 plt.ylabel('rBC mass (fg)')
-plt.text(0.05, 1.025,'SP2#' + str(args.instr_number) + ' at ' + args.location + ' ' + datetime.utcfromtimestamp(UNIX_date).strftime('%Y/%m/%d') + ' - ' + args.fit_type + ' fit', fontsize = 14,transform=ax.transAxes)
+plt.text(0.05, 1.025,'SP2#' + str(args.instr_number) + ' at ' + args.location + ', calibrated on ' + datetime.utcfromtimestamp(calib_date).strftime('%Y/%m/%d') +  ' - ' + args.fit_type + ' fit', fontsize = 14,transform=ax.transAxes)
 plt.show()
 
 

@@ -24,7 +24,7 @@ class CABMTimeInterval(TimeInterval):
 	"""
 	
 	
-	def _retrieveHousekeepingLimits(self):
+	def retrieveHousekeepingLimits(self):
 		"""
 		Get the housekeeping limits from the database.
 		This is subclassed to allow different tables for each location
@@ -120,7 +120,7 @@ class CABMTimeInterval(TimeInterval):
 		
 
 
-	def _retrieveCalibrationData(self):
+	def retrieveCalibrationData(self):
 		"""
 		Get the relevant calibration data from the database.
 		This is subclassed because many of the CABM calibrations were done in the lab, so we can't select them using the location ID but will simply use the most recent one. 
@@ -179,10 +179,14 @@ class CABMTimeInterval(TimeInterval):
 			if channel == 'BBLG_incand':
 				self.LG_calibration_ID = float(calib_ID)
 
-			pkht_ll, pkht_ul = self._retrieveCalibrationLimits(calib_ID)
+			if self.extrapolate_calibration == False:
+				pkht_ll, pkht_ul = self._retrieveCalibrationLimits(calib_ID)
+			else:
+				pkht_ll = self.min_detectable_signal
+				pkht_ul = self.saturation_limit
 
 			calibration_data[channel] = [pkht_ll, pkht_ul, calib_0, calib_1, calib_2, calib_0_err, calib_1_err, calib_2_err]
-
+		
 		self.calibration_info = calibration_data	
 
 
@@ -223,7 +227,8 @@ class CABMTimeInterval(TimeInterval):
 		  total_interval_mass,
 		  total_interval_mass_uncertainty,
 		  total_interval_number,
-		  total_interval_volume)
+		  total_interval_volume,
+		  fraction_of_mass_sampled)
 		  VALUES (
 		  %(UNIX_UTC_ts_int_start)s,
 		  %(UNIX_UTC_ts_int_end)s,
@@ -234,7 +239,8 @@ class CABMTimeInterval(TimeInterval):
 		  %(total_interval_mass)s,
 		  %(total_interval_mass_uncertainty)s,
 		  %(total_interval_number)s,
-		  %(total_interval_volume)s)''')
+		  %(total_interval_volume)s,
+		  %(fraction_of_mass_sampled)s)''')
 
 		return add_data
 
@@ -251,6 +257,7 @@ class CABMTimeInterval(TimeInterval):
 		'total_interval_mass_uncertainty':float(self.assembled_interval_data['total mass uncertainty']),
 		'total_interval_number':float(self.assembled_interval_data['total number']),
 		'total_interval_volume':float(self.assembled_interval_data['sampled volume']),
+		'fraction_of_mass_sampled': 1.,
 		}
 
 		return interval_record
@@ -278,7 +285,7 @@ class CABMTimeInterval(TimeInterval):
 
 
 	#for distributions
-	def createDistributionInsertStatement(self, table_name):
+	def createBinnedDataInsertStatement(self, table_name):
 		add_data = ('''INSERT INTO '''+ table_name + '''							  
 		  (bin_ll,
 		  bin_ul,
@@ -295,7 +302,7 @@ class CABMTimeInterval(TimeInterval):
 		return add_data
 
 
-	def insertDistributionRecords(self, insert_statment):
+	def insertBinnedData(self, insert_statment):
 	 
 		multiple_records = []
 		for point in self.binned_data:	

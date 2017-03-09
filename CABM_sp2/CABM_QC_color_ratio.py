@@ -16,7 +16,6 @@ from CABM_SP2_time_interval import CABMTimeInterval
 from mysql_db_connection import dbConnection
 import SP2_utilities
 import CABM_utilities
-from mysql_db_connection import dbConnection
 
 
 #set arguments

@@ -11,7 +11,6 @@ import argparse
 from datetime import datetime
 from pprint import pprint
 from mysql_db_connection import dbConnection
-import SP2_housekeeping
 import SP2_utilities
 import CABM_utilities
 

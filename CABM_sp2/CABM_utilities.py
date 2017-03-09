@@ -19,7 +19,7 @@ this module is a collection of widely used generic methods specific to the CABM 
 """
 
 def getLocationID(location_name):
-	instr_location_IDs = {'Alert':1,'East Trout Lake':2,'Egbert':3,'Resolute':4,'Whistler':5}
+	instr_location_IDs = {'Alert':1,'ETL':2,'Egbert':3,'Resolute':4,'Whistler':5}
  	instr_location_ID = instr_location_IDs[location_name]
  	return instr_location_ID
  	
@@ -74,4 +74,21 @@ def retrieveCalibrationID(instr_ID,date,channel,cursor):
 	calib_id = cursor.fetchall()
 
 	return calib_id[0][0]
+
+
+def retrieveCalibrationDate(calibration_id,cursor):
+	cursor.execute('''
+	SELECT 
+		calibration_date	
+	FROM
+		sp2_calibrations
+	WHERE
+		id = %s
+		AND id > %s
+	''',
+	(calibration_id,0))
+
+	calib_date_list = cursor.fetchall()
+
+	return calib_date_list[0][0]
 

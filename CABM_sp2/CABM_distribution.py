@@ -67,7 +67,8 @@ def retrieveQCdIntervalData(instr_ID,instr_location_ID,distr_interval_start,dist
 		WHERE 
 			intd.instr_ID = %s
 			AND qc.UNIX_UTC_ts_int_start IS NULL
-			AND (intd.UNIX_UTC_ts_int_start BETWEEN %s AND %s)
+			AND intd.UNIX_UTC_ts_int_start >= %s 
+			AND intd.UNIX_UTC_ts_int_start < %s
 			''',
 		(instr_ID,distr_interval_start,distr_interval_end))
 	int_data = cursor.fetchall()

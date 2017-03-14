@@ -1,0 +1,6 @@
+Periods where the color ratio indicates some YAG power issues.
+These should be investigated in more detail before the data is used.
+
+SP2 #17 at ETL after 20160325
+SP2 #44 at Alert after 20130126
+SP2 #44 at Resolute after 20151014

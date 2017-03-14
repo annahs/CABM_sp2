@@ -60,7 +60,6 @@ while distr_interval_start < end_analysis:
 
  	#sort interval data into dictionary
  	binned_mass_data_dict,binned_numb_data_dict,interval_id_set,total_volume = CABM_distribution.compileIntervalData(int_data)
-	
 	#get total bin mass concs for the distribution interval
 	binned_mass_data_list = CABM_distribution.getOverallDistr(binned_mass_data_dict,total_volume)
 

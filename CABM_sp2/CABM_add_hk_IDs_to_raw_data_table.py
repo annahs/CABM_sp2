@@ -18,8 +18,8 @@ import CABM_utilities
 parser = argparse.ArgumentParser(description='''
 	Adds housekeeping IDS to the SP2 single_particle_data tables.
 	''')
-parser.add_argument('analysis_start', 		help='Date to start on - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('analysis_end', 		help='Date to finish on - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('analysis_start', 		help='Date to start on - format flexible ',type=SP2_utilities.valid_date)
+parser.add_argument('analysis_end', 		help='Date to finish on - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', 			help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 args = parser.parse_args()

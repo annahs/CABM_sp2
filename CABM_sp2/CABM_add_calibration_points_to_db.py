@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='''
 	The full file path must be given as well as the calibration date, instrument, and calibrated channel.
 	The calibration points file should be tab-delimited and have a single line header. Rows below the header should have mobility diameter followed by the corresponding signal:
 	''')
-parser.add_argument('calibration_date', help='Date of calibration - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('calibration_date', help='Date of calibration - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('calibrated_channel', help='Channel that was calibrated. Options: BBHG_incand or BBLG_incand',type=str)
 parser.add_argument('filepath', help='full path for file containing calibration data',type=str)

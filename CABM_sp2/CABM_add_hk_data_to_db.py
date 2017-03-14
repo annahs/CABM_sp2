@@ -21,8 +21,8 @@ parser = argparse.ArgumentParser(description='''
 	Reads housekeeping files and enters houskeeping data into the database.
 	It is necessary to know what column is used in the housekeeping files for each parameter. 
 	''')
-parser.add_argument('analysis_start', 		help='Date to start on - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('analysis_end', 		help='Date to finish on - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('analysis_start', 		help='Date to start on - format flexible ',type=SP2_utilities.valid_date)
+parser.add_argument('analysis_end', 		help='Date to finish on - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', 			help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', 		help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('raw_data_path', 		help='full path for directory containing the daily raw data folders or full path for directory conatining all files (use if all .sp2b files are in a single folder)',type=str)

@@ -22,13 +22,12 @@ parser = argparse.ArgumentParser(description='''
 	The distributions can be plotted using the optional -p argument.
 	It can also update the appropriate sp2_time_intervals table with a correction factor for mass outside the detection range using the -u optional argument.
 	''')
-parser.add_argument('start_time', help='beginning of intervals - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('end_time', help='end of intervals - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('start_time', help='beginning of intervals - format flexible ',type=SP2_utilities.valid_date)
+parser.add_argument('end_time', help='end of intervals - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('-p','--plot_distributions', help='plot the distributions', action='store_true')
 parser.add_argument('-u','--update_correction_factor', help='update the correction factor in sp2_intervals table', action='store_true')
-parser.add_argument('-b','--bin_width', help='sets the bin width for binning by rBC core diameter, default is 10nm',default=10, type= int)
 parser.add_argument('-i','--interval_length', help='sets the time interval over which to compile the distribution (in hours), default is 24',default=24, type= int)
 args = parser.parse_args()
 
@@ -37,7 +36,6 @@ start_analysis				= calendar.timegm(args.start_time.utctimetuple())
 end_analysis				= calendar.timegm(args.end_time.utctimetuple())
 instr_location_ID	 		= CABM_utilities.getLocationID(args.location)
 instr_ID					= CABM_utilities.getInstrID(args.instr_number)
-binning_increment			= args.bin_width 						
 interval_length				= args.interval_length*3600				
 
 
@@ -56,6 +54,9 @@ while distr_interval_start < end_analysis:
 
  	#select all intervals data within this larger distribution period and do a QC double check
  	int_data = CABM_distribution.retrieveQCdIntervalData(instr_ID,instr_location_ID,distr_interval_start,distr_interval_end,cursor,cnx)
+ 	if int_data == []:
+ 		distr_interval_start += interval_length
+ 		continue
 
  	#sort interval data into dictionary
  	binned_mass_data_dict,binned_numb_data_dict,interval_id_set,total_volume = CABM_distribution.compileIntervalData(int_data)
@@ -68,6 +69,16 @@ while distr_interval_start < end_analysis:
 	bin_mass_concs = [row[1] for row in binned_mass_data_list]
 	popt,perr = SP2_utilities.fitFunction(SP2_utilities.lognorm,bin_mid_vals,bin_mass_concs,p0=(100,180,0.5))
 
+	#get binning increment, check that it is constant, and exit if not
+	bin_differences = list(np.diff(bin_mid_vals))
+	if not bin_differences[1:] == bin_differences[:-1]:
+		print 'Bin widths are not all equal'
+		print 'exiting'
+		sys.exit()
+	else:
+		binning_increment = int(np.mean(bin_differences))
+	
+
 	#calculate the fraction of the mass distribution sampled
 	meas_mass = np.sum(bin_mass_concs)
 	fit_masses = []
@@ -76,7 +87,7 @@ while distr_interval_start < end_analysis:
 		fit_masses.append(fit_bin_mass)
 	fit_mass = np.sum(fit_masses)
 	fraction_meas = meas_mass/fit_mass
-	print fraction_meas
+	print 'fraction of mass in detection range = ', fraction_meas
 
 	#calculate the uncertainty in the fraction of the mass distribution sampled
 	fit_masses_ul = []

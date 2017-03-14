@@ -25,7 +25,6 @@ parser.add_argument('start_time', help='beginning of intervals - format flexible
 parser.add_argument('end_time', help='end of intervals - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
-parser.add_argument('file_name', help='PSI data file name',type=str)
 args = parser.parse_args()
 
 print args.start_time
@@ -37,7 +36,7 @@ start_analysis				= args.start_time
 end_analysis				= args.end_time
 instr_location_ID	 		= CABM_utilities.getLocationID(args.location)
 instr_ID					= CABM_utilities.getInstrID(args.instr_number)
-file 						= args.file_name
+file 						= args.location + str(args.start_time.year)+ str(args.start_time.month).zfill(2)+ str(args.start_time.day).zfill(2) + '-timeseries.txt'
 title 						= 'SP2 #' + str(args.instr_number) +' at '+ args.location + ' - ' + str(start_analysis.date())
 
 #create db connection and cursor
@@ -86,12 +85,12 @@ with open(file) as f:
 
 			all_data.append([date_time,number_conc,mass_conc,UBC_numb_conc,UBC_mass_conc])
 
-#with open('/Users/mcallister/projects/CABM_sp2/docs/PSI_toolkit_results/corr.txt', 'w') as f:
-#	for line in all_data:
-#		for item in line:
-#			f.write(str(item) + '\t')
-#		f.write('\n')
-#sys.exit()
+with open('/Users/mcallister/projects/CABM_sp2/docs/PSI_toolkit_results/Alert20120601-44-1min-extrap.txt', 'w') as f:
+	for line in all_data:
+		for item in line:
+			f.write(str(item) + '\t')
+		f.write('\n')
+
 
 
 time = [dates.date2num(row[0]) for row in all_data]

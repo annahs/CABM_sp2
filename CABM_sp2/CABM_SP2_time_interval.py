@@ -131,6 +131,7 @@ class CABMTimeInterval(TimeInterval):
 		else:
 			calib_time = self.interval_start
 
+		#get data from db
 		calibration_data = {}
 		for channel in ['BBHG_incand','BBLG_incand']:
 			self.db_cur.execute('''
@@ -155,35 +156,39 @@ class CABMTimeInterval(TimeInterval):
 			(self.instr_ID,channel,calib_time))
 
 			calib_coeffs = self.db_cur.fetchall()
-
 			if calib_coeffs == []:
 				calib_coeffs_np = [[np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,'Aquadag',np.nan]]
 			else:
 				calib_coeffs_np = np.array(calib_coeffs, dtype=[('term0', 'f4'),('term1', 'f4'),('term2', 'f4'),('term0err', 'f4'),('term1err', 'f4'),('term2err', 'f4'),('mat', 'S7'),('ID', 'f4'),])  #converts Nones to nans for calculations
 
-
+			#Aqudag correction
 			for row in calib_coeffs_np:
 				calib_material 	= row[6]
 				calib_ID 		= row[7]
 				calib_0 		= row[0]
 				calib_0_err		= row[3]
-
 				if calib_material == 'Aquadag':
 					calib_1 	= row[1]/0.7
 					calib_1_err = row[4]/0.7
 					calib_2 	= row[2]/0.7
 					calib_2_err = row[5]/0.7
-						
+			
+			#set calibration ids		
 			if channel == 'BBHG_incand':
 				self.HG_calibration_ID = float(calib_ID)
 			if channel == 'BBLG_incand':
 				self.LG_calibration_ID = float(calib_ID)
 
+			#get the signal limits for calculating mass
 			if self.extrapolate_calibration == False:
 				pkht_ll, pkht_ul = self._retrieveCalibrationLimits(calib_ID)
 			else:
 				pkht_ll = self.min_detectable_signal
 				pkht_ul = self.saturation_limit
+				#an electrical issue on SP2 #17 prior to 2012 gave anomalous signals at masses above ~240nm, this only applies to calibration #1, so we limit the mass range in this case
+				if calib_ID == 1:
+					pkht_ul = 1410
+
 
 			calibration_data[channel] = [pkht_ll, pkht_ul, calib_0, calib_1, calib_2, calib_0_err, calib_1_err, calib_2_err]
 		
@@ -194,7 +199,7 @@ class CABMTimeInterval(TimeInterval):
 		QC_issues = False
 		self.db_cur.execute('''
 			SELECT 
-				QC_code
+				count(*)
 			FROM
 				sp2_qc_intervals_locn''' + str(self.instr_location_ID) + '''
 			WHERE
@@ -202,9 +207,9 @@ class CABMTimeInterval(TimeInterval):
 				and instr_ID = %s
 			''',
 			(self.interval_start,self.interval_end,self.instr_ID))
-		QC_codes = self.db_cur.fetchall()
+		QC_codes = self.db_cur.fetchall()[0][0]
 
-		if QC_codes != []:
+		if QC_codes > 0:
 			QC_issues = True
 
 		return QC_issues

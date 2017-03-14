@@ -19,8 +19,8 @@ import CABM_utilities
 parser = argparse.ArgumentParser(description='''
 	Plots the housekeeping data over a specified date range for a particular location and instrument
 	''')
-parser.add_argument('start_time', help='beginning of interval to plot - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('end_time', help='end of interval to plot - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('start_time', help='beginning of interval to plot - format flexible ',type=SP2_utilities.valid_date)
+parser.add_argument('end_time', help='end of interval to plot - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 args = parser.parse_args()
@@ -69,8 +69,6 @@ fig = plt.figure(figsize=(12,10))
 ax1 = fig.add_subplot(311)
 ax1.plot(plot_datetime,yag_power, color = 'r')
 ax1.xaxis.set_major_formatter(hfmt)
-ax1.axhline(3.75, color = 'r', linestyle = '--')
-ax1.axhline(9, color = 'r', linestyle = '--')
 ax1.set_ylim(0,10)
 ax1.set_ylabel('Yag power (V)')
 

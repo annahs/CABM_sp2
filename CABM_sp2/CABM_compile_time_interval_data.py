@@ -19,8 +19,8 @@ parser = argparse.ArgumentParser(description='''
 	This script is used to add rBC mass and number information at specifc time intervals to the database.
 	It also adds binned mass and number information to a separate table
 	''')
-parser.add_argument('start_time', help='beginning of intervals - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('end_time', help='end of intervals - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('start_time', help='beginning of intervals - format flexible ',type=SP2_utilities.valid_date)
+parser.add_argument('end_time', help='end of intervals - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('-b','--bin_width', help='sets the bin width for binning by rBC core diameter, default is 10nm',default=10, type= int)

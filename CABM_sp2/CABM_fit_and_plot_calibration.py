@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='''
 	A fit is also plotted and can be specified as a linear or quadratic function.  
 	An optional argument allows the database to be updated with this fit, so that it is used in future analysis
 	''')
-parser.add_argument('date', help='Date of interest- format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('date', help='Date of interest- format flexible',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('fit_type', help='linear or quadratic',type=str)

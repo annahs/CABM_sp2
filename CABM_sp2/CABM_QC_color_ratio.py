@@ -22,8 +22,8 @@ import CABM_utilities
 parser = argparse.ArgumentParser(description='''
 	Plots the color ratio (high-gain broad-band/high-gain narrow-band incandesce amplitude) as a function or rBC particle size over time.
 	''')
-parser.add_argument('start_time', help='beginning of interval to plot - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
-parser.add_argument('end_time', help='end of interval to plot - format YYYY-MM-DD ',type=SP2_utilities.valid_date)
+parser.add_argument('start_time', help='beginning of interval to plot - format flexible',type=SP2_utilities.valid_date)
+parser.add_argument('end_time', help='end of interval to plot - format flexible',type=SP2_utilities.valid_date)
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('-bi','--binning_interval', help='binning interval length in hours (default is 6)',default=6,type=int)

@@ -1,6 +1,6 @@
 # CABM_sp2
 
-Used to create time series of refractory black carbon (rBC) mass and number concentration from sp2 measurements. 
+Parses raw data and creates time series of refractory black carbon (rBC) mass and number concentration from sp2 measurements made at the ECCC CABM sites.
 
 
 ## Requirements

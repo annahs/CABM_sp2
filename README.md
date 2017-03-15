@@ -1,6 +1,6 @@
 # CABM_sp2
 
-Parses raw data and creates time series of refractory black carbon mass and number concentration from sp2 measurements made at the ECCC CABM sites.
+Parses raw data and creates time series of refractory black carbon mass and number concentration from SP2 measurements made at the ECCC CABM sites.
 
 
 ## Requirements

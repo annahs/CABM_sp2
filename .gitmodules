@@ -1,0 +1,3 @@
+[submodule "sp2_library"]
+	path = sp2_library
+	url = https://github.com/annahs/sp2_library

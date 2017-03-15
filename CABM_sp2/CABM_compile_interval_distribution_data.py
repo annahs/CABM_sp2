@@ -67,6 +67,10 @@ while distr_interval_start < end_analysis:
 	bin_mid_vals   = [row[0] for row in binned_mass_data_list]
 	bin_mass_concs = [row[1] for row in binned_mass_data_list]
 	popt,perr = SP2_utilities.fitFunction(SP2_utilities.lognorm,bin_mid_vals,bin_mass_concs,p0=(100,180,0.5))
+	if np.isnan(popt[0]):
+		distr_interval_start += interval_length
+		print 'no fit'
+		continue
 
 	#get binning increment, check that it is constant, and exit if not
 	bin_differences = list(np.diff(bin_mid_vals))
@@ -87,7 +91,8 @@ while distr_interval_start < end_analysis:
 	fit_mass = np.sum(fit_masses)
 	fraction_meas = meas_mass/fit_mass
 	print 'fraction of mass in detection range = ', fraction_meas
-
+	if fraction_meas >1 or fraction_meas < 0.001:
+		fraction_meas = 1
 	#calculate the uncertainty in the fraction of the mass distribution sampled
 	fit_masses_ul = []
 	for fit_bin in range(10,1000,binning_increment):
@@ -95,7 +100,7 @@ while distr_interval_start < end_analysis:
 		fit_masses_ul.append(fit_bin_mass)
 	fit_mass_ul = np.sum(fit_masses_ul)
 	fraction_meas_ll = meas_mass/fit_mass_ul
-	fraction_meas_err = fraction_meas - fraction_meas_ll
+	fraction_meas_err = abs(fraction_meas - fraction_meas_ll)
 
 	#update the interval table
 	if args.update_correction_factor:

@@ -24,7 +24,7 @@ parser.add_argument('end_time', help='end of intervals - format flexible ',type=
 parser.add_argument('location', help='CABM site name. Options: Alert, ETL, Egbert, Resolute, Whistler ',type=str)
 parser.add_argument('instr_number', help='SP2 number. Options: 17, 44, 58 ',type=int)
 parser.add_argument('-b','--bin_width', help='sets the bin width for binning by rBC core diameter, default is 10nm',default=10, type= int)
-parser.add_argument('-i','--interval_length', help='sets the interval length in seconds, default is 1 minute',default=1, type= float)
+parser.add_argument('-i','--interval_length', help='sets the interval length in minutes, default is 1 minute',default=1, type= float)
 parser.add_argument('-e','--extrapolate_calibration', help='if set the interval will include particles with masses outside the calibration range',action='store_true')
 args = parser.parse_args()
 

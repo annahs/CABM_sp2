@@ -58,7 +58,6 @@ if parameters['instr_locn_ID'] in [2,4] and parameters['instr_id'] == 17:
 
 
 with open(args.raw_data_path, 'rb') as sp2b_file:
-	i=0
 	sp2b_file.seek(parameters['bytes_per_record']*args.record_number)
 	record = sp2b_file.read(parameters['bytes_per_record'])	
 	particle_record = ParticleRecord(record, parameters['acq_rate'])

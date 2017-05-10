@@ -27,7 +27,7 @@ class CABMTimeInterval(TimeInterval):
 	def retrieveHousekeepingLimits(self):
 		"""
 		Get the housekeeping limits from the database.
-		This is subclassed to allow different tables for each location
+		This is subclassed to allow different tables for each CABM location
 		"""
 		self.db_cur.execute('''
 		SELECT 
@@ -125,11 +125,8 @@ class CABMTimeInterval(TimeInterval):
 		Get the relevant calibration data from the database.
 		This is subclassed because many of the CABM calibrations were done in the lab, so we can't select them using the location ID but will simply use the most recent one. 
 		"""
-		#Only a single calibration is available for WHI and Egbert, done in 2010, so we must use this even for 2009 values
-		if self.instr_location_ID in [3,5]:
-			calib_time = 1267747200 
-		else:
-			calib_time = self.interval_start
+
+		calib_time = self.interval_start
 
 		#get data from db
 		calibration_data = {}
@@ -233,7 +230,8 @@ class CABMTimeInterval(TimeInterval):
 		  total_interval_mass_uncertainty,
 		  total_interval_number,
 		  total_interval_volume,
-		  fraction_of_mass_sampled)
+		  fraction_of_mass_sampled,
+		  calib_extrapolated)
 		  VALUES (
 		  %(UNIX_UTC_ts_int_start)s,
 		  %(UNIX_UTC_ts_int_end)s,
@@ -245,7 +243,8 @@ class CABMTimeInterval(TimeInterval):
 		  %(total_interval_mass_uncertainty)s,
 		  %(total_interval_number)s,
 		  %(total_interval_volume)s,
-		  %(fraction_of_mass_sampled)s)''')
+		  %(fraction_of_mass_sampled)s,
+		  %(calib_extrapolated)s)''')
 
 		return add_data
 
@@ -263,6 +262,7 @@ class CABMTimeInterval(TimeInterval):
 		'total_interval_number':float(self.assembled_interval_data['total number']),
 		'total_interval_volume':float(self.assembled_interval_data['sampled volume']),
 		'fraction_of_mass_sampled': 1.,
+		'calib_extrapolated': self.extrapolate_calibration,
 		}
 
 		return interval_record
@@ -277,6 +277,7 @@ class CABMTimeInterval(TimeInterval):
 			AND instr_location_ID = %s
 			''',
 			(self.interval_start,self.interval_end,self.instr_ID,self.instr_location_ID))
+		self.db_connection.commit()
 
 
 	def insertSingleRecord(self, insert_statment,interval_record):

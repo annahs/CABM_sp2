@@ -19,7 +19,8 @@ from mysql_db_connection import dbConnection
 
 #set arguments
 parser = argparse.ArgumentParser(description='''
-	This script plots the timeseries data
+	This script plots the timeseries data.  Note that the mass concentrations are corrected for the fraction of mass within the instrument detection limits 
+	(determined from the mass distribution), but no such correction is applied to the number concentrations.
 	''')
 parser.add_argument('start_time', help='beginning of intervals - format flexible ',type=SP2_utilities.valid_date)
 parser.add_argument('end_time', help='end of intervals - format flexible ',type=SP2_utilities.valid_date)
@@ -87,7 +88,7 @@ fig = plt.figure(figsize=(12,10))
 ax1 = plt.subplot2grid((2,1), (0,0))
 ax2 = plt.subplot2grid((2,1), (1,0))
 
-ax1.plot(time,mass_concs, color = 'b', marker = 'o')
+ax1.scatter(time,mass_concs, color = 'b', marker = 'o')
 ax1.xaxis.set_major_formatter(hfmt)
 ax1.set_ylabel('rBC mass concentration (ng/m3)')
 ax1.set_xlabel('Time')
@@ -102,9 +103,6 @@ ymin, ymax = ax2.get_ylim()
 ax2.set_ylim(0,ymax)
 
 fig.suptitle(title, fontsize=14)
-
-
-#plt.savefig('/Users/mcallister/projects/CABM_sp2/docs/PSI_toolkit_results/'+title+ ' timeseries.png',bbox_inches = 'tight')
 
 plt.show()
 

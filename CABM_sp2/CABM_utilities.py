@@ -30,10 +30,6 @@ def getInstrID(instr_number):
 
 
 def retrieveCalibrationIDs(instr_location_ID,instr_ID,date,cursor):
-	#Only a single calibration is available for WHI and Egbert, done in 2010, so we must use this even for 2009 values
-	if instr_location_ID in [3,5]:
-		date = 1267747200 
-
 	#many of the CABM calibrations were done in the lab, so we can't select them using the location ID but will simply use the most recent one.
 	calib_id_list = []
 	for channel in ['BBHG_incand','BBLG_incand']:

@@ -69,7 +69,9 @@ class CABMTimeInterval(TimeInterval):
 				sp.BB_incand_LG_pkht,
 				hk.sample_flow,
 				hk.yag_power,
-				sp.NB_incand_HG_pkht
+				sp.NB_incand_HG_pkht,
+				hk.chamber_temp,
+				hk.chamber_pressure
 			FROM
 				sp2_single_particle_data_locn''' + str(self.instr_location_ID) + ''' sp
 					LEFT JOIN
@@ -103,7 +105,9 @@ class CABMTimeInterval(TimeInterval):
 				sp.BB_incand_LG_pkht,
 				hk.sample_flow,
 				hk.yag_power,
-				sp.NB_incand_HG_pkht
+				sp.NB_incand_HG_pkht,
+				hk.chamber_temp,
+				hk.chamber_pressure
 			FROM
 				sp2_single_particle_data_locn''' + str(self.instr_location_ID) + ''' sp
 					JOIN
@@ -116,8 +120,6 @@ class CABMTimeInterval(TimeInterval):
 			(self.interval_start,self.interval_end,self.yag_min,self.yag_max,self.sample_flow_min,self.sample_flow_max))
 			
 			self.single_particle_data = self.db_cur.fetchall()
-		
-		
 
 
 	def retrieveCalibrationData(self):
@@ -154,7 +156,7 @@ class CABMTimeInterval(TimeInterval):
 
 			calib_coeffs = self.db_cur.fetchall()
 			if calib_coeffs == []:
-				calib_coeffs_np = [[np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,'Aquadag',np.nan]]
+				calib_coeffs_np = [[np.nan,np.nan,np.nan,np.nan,np.nan,np.nan,'nan',np.nan]]
 			else:
 				calib_coeffs_np = np.array(calib_coeffs, dtype=[('term0', 'f4'),('term1', 'f4'),('term2', 'f4'),('term0err', 'f4'),('term1err', 'f4'),('term2err', 'f4'),('mat', 'S7'),('ID', 'f4'),])  #converts Nones to nans for calculations
 
@@ -217,6 +219,71 @@ class CABMTimeInterval(TimeInterval):
 	#database methods specific for the CABM sites
 
 	#for intervals
+	def assembleIntervalData(self):
+		"""
+		Assemble the interval data.  
+		This is stored as a dictionary with: the total interval rBC mass, the uncertainty in total rBC mass, rBC particle number, total sampled volume, and a list of the diameters of detected particles.
+		This is subclassed to allow for earlier data where the chamber temperature and pressure weren't stored
+		"""
+		interval_data_dict = {}
+		interval_sampled_volume = 0
+		interval_mass = 0
+		interval_mass_uncertainty = 0
+		ved_list = []
+
+		for row in self.single_particle_data:
+			ind_start_time 	= row[0] 	#UNIX UTC timestamp
+			ind_end_time 	= row[1]	#UNIX UTC timestamp
+			BB_incand_HG 	= row[2]  	#in arbitrary units
+			BB_incand_LG 	= row[3]  	#in arbitrary units
+			sample_flow 	= row[4]  	#in vccm
+			chamber_temp 	= row[7] 	#in deg C
+			chamber_pressure= row[8]  	#in Pa
+
+			if sample_flow == None: #ignore particles if we can't calculate a volume
+				continue
+			if (ind_end_time-ind_start_time) > self.interval_max  or (ind_end_time-ind_start_time) < 0:  #ignore particles with a huge sample interval (this arises when the SP2 was set to sample only from 1 of every x minutes)
+				continue
+			
+			#get appropriate sample factor
+			sample_factor = self.getParticleSampleFactor(ind_end_time)
+			STP_correction_factor = self.getSTPCorrectionFactor(chamber_pressure,chamber_temp) 
+
+			particle_sample_vol =  sample_flow*(ind_end_time-ind_start_time)*STP_correction_factor/(60*sample_factor)   #factor of 60 needed because flow is in sccm and time is in seconds
+			interval_sampled_volume += particle_sample_vol
+
+			rBC_mass,rBC_mass_uncertainty = self.calculateMass(BB_incand_HG,BB_incand_LG,ind_end_time)
+			VED = SP2_utilities.calculateVED(self.rBC_density,rBC_mass)
+
+			if self.min_VED <= VED <= self.max_VED:  #we limit mass and number concentrations to within the set size limits
+				interval_mass += rBC_mass
+				interval_mass_uncertainty += rBC_mass_uncertainty
+				ved_list.append(VED)
+				
+		interval_data_dict['VED list'] = ved_list
+		interval_data_dict['total mass'] = interval_mass
+		interval_data_dict['total number'] = len(ved_list)
+		interval_data_dict['total mass uncertainty'] = interval_mass_uncertainty
+		interval_data_dict['sampled volume'] = interval_sampled_volume
+
+		self.assembled_interval_data = interval_data_dict
+
+
+	def getSTPCorrectionFactor(self,chamber_pressure,chamber_temp):
+		if chamber_pressure is None:
+			chamber_pressure = self.pressure
+
+		if chamber_temp is None:
+			chamber_temperature = self.temperature
+		else:
+			chamber_temperature = chamber_temp + 273.15 	#in deg C -> K
+
+
+		STP_correction_factor = (chamber_pressure/101325)*(273.15/chamber_temperature) 
+
+		return STP_correction_factor
+
+
 	def createIntervalInsertStatement(self, table_name):
 		
 		add_data = ('''INSERT INTO '''+ table_name + '''							  
@@ -281,7 +348,6 @@ class CABMTimeInterval(TimeInterval):
 
 
 	def insertSingleRecord(self, insert_statment,interval_record):
-	 
 		self.db_cur.execute(insert_statment,interval_record)
 		self.db_connection.commit()
 		

@@ -63,12 +63,6 @@ parameters = {
 'hk_table'					: 'sp2_hk_data_locn' + str(instr_location_ID),
 }
 
-
-#create db connection and cursor
-database_connection = dbConnection('CABM_SP2')
-cnx = database_connection.db_connection
-cursor = database_connection.db_cur
-
 #create db insert statement
 add_interval = SP2_housekeeping.defineHKInsertStatement(parameters['hk_table'])
 

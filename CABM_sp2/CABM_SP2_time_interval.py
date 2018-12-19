@@ -166,6 +166,10 @@ class CABMTimeInterval(TimeInterval):
 				calib_ID 		= row[7]
 				calib_0 		= row[0]
 				calib_0_err		= row[3]
+				calib_1 		= row[1]
+				calib_1_err 	= row[4]
+				calib_2 		= row[2]
+				calib_2_err 	= row[5]
 				if calib_material == 'Aquadag':
 					calib_1 	= row[1]/0.7
 					calib_1_err = row[4]/0.7

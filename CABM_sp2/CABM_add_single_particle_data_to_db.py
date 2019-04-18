@@ -60,7 +60,7 @@ parameters = {
 
 ##Note: there was a change in the byte rate of SP2 #17 (from 2458 to 1498) when it was installed at East Trout Lake in 2013.  This change must be applied to all data from SP2 #17 at ETL and Resolute
 #location ids of ETL and Resolute are 2 and 4.  This snippet corrects the byte rate.
-if parameters['instr_locn_ID'] in [2,4] and parameters['instr_id'] == 17:
+if parameters['instr_locn_ID'] in [2,4] and parameters['instr_id'] == 1:
 	parameters['bytes_per_record'] = 1498
 
 
